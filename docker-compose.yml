@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: quickpoll_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quickpoll
+      POSTGRES_PASSWORD: quickpoll
+      POSTGRES_DB: quickpoll
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8-alpine
+    container_name: quickpoll_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: quickpoll_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@quickpoll.com     # dummy
+      PGADMIN_DEFAULT_PASSWORD: admin                  # only for local setup
+    ports:
+      - "8080:80"                                        # Access pgAdmin at http://localhost:8080
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:
