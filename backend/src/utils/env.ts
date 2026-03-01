@@ -14,8 +14,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-
-  console.log(process.env.PORT)  
+    
   const flatErrors = z.flattenError(parsed.error);
 
   console.error('Invalid environment variables:');
