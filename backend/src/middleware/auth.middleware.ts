@@ -12,7 +12,7 @@ interface JwtPayload {
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
     return next(new AppError('Missing or invalid authorization header', 401, 'UNAUTHORIZED'));
   }
 
