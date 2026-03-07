@@ -3,10 +3,12 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { useAuthStore } from '../store/authStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
+import { Label } from '../components/ui/label';
+import { useThemeStore } from '../store/themeStore';
+import { Sun, Moon } from 'lucide-react';
 
 interface PollResponse {
   id: string;
@@ -21,6 +23,7 @@ export default function DashboardPage() {
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '']);
   const [error, setError] = useState('');
+  const { isDark, toggle } = useThemeStore();
 
   const { mutate: logout } = useMutation({
     mutationFn: () => api.post('/auth/logout'),
@@ -74,6 +77,10 @@ export default function DashboardPage() {
             <Button variant="outline" onClick={() => logout()}>
               Logout
             </Button>
+            <Button variant="outline" size="sm" onClick={toggle}>
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </Button>
+
           </div>
         </div>
 
