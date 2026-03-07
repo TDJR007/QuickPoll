@@ -65,6 +65,7 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col gap-2">
           <Button
             className="w-full"
+            variant="mint"
             onClick={() => login()}
             disabled={isPending}
           >

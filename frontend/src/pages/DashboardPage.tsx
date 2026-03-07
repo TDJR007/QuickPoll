@@ -130,6 +130,7 @@ export default function DashboardPage() {
           <CardFooter>
             <Button
               className="w-full"
+              variant="mint"
               onClick={() => createPoll()}
               disabled={isPending}
             >
