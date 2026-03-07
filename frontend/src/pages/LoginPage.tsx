@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 
 interface AuthResponse {
   user: { id: string; email: string; createdAt: string };
-  token: string;
 }
 
 export default function LoginPage() {
@@ -26,7 +25,7 @@ export default function LoginPage() {
       return res.data;
     },
     onSuccess: (data) => {
-      setAuth(data.user, data.token);
+      setAuth(data.user);
       navigate('/dashboard');
     },
     onError: (err: any) => {

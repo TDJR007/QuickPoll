@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type SetStateAction } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../api/client';
@@ -26,7 +26,7 @@ export default function RegisterPage() {
       return res.data;
     },
     onSuccess: (data) => {
-      setAuth(data.user, data.token);
+      setAuth(data.user);
       navigate('/dashboard');
     },
     onError: (err: any) => {
@@ -48,7 +48,7 @@ export default function RegisterPage() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: { target: { value: SetStateAction<string>; }; }) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
           </div>
@@ -58,7 +58,7 @@ export default function RegisterPage() {
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPassword(e.target.value)}
               placeholder="••••••••"
             />
           </div>
