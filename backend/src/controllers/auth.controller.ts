@@ -3,11 +3,25 @@
 import { Request, Response, NextFunction } from 'express';
 import { registerSchema, loginSchema } from '../validators/auth.validator';
 import { registerUser, loginUser } from '../services/auth.service';
+import jwt from 'jsonwebtoken';
+import { env } from '../utils/env';
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+};
+
+const signToken = (userId: string) =>
+  jwt.sign({ userId }, env.JWT_SECRET, { expiresIn: '7d' });
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const input = registerSchema.parse(req.body);
     const result = await registerUser(input);
+    const token = signToken(result.user.id);
+    res.cookie('token', token, COOKIE_OPTIONS);
     res.status(201).json(result);
   } catch (err) {
     next(err);
@@ -18,10 +32,17 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const input = loginSchema.parse(req.body);
     const result = await loginUser(input);
+    const token = signToken(result.user.id);
+    res.cookie('token', token, COOKIE_OPTIONS);
     res.status(200).json(result);
   } catch (err) {
     next(err);
   }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  res.clearCookie('token', COOKIE_OPTIONS);
+  res.status(200).json({ message: 'Logged out' });
 };
 
 /*

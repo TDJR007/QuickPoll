@@ -46,7 +46,7 @@ export const registerUser = async (input: RegisterInput) => {
     { expiresIn: '7d' }
   );
 
-  return { user, token };
+  return { user };
 };
 
 export const loginUser = async (input: LoginInput) => {
@@ -78,7 +78,6 @@ export const loginUser = async (input: LoginInput) => {
       email: user.email,
       createdAt: user.createdAt,
     },
-    token,
   };
 };
 

@@ -10,13 +10,11 @@ interface JwtPayload {
 }
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies?.token;
 
-  if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
-    return next(new AppError('Missing or invalid authorization header', 401, 'UNAUTHORIZED'));
+  if (!token) {
+    return next(new AppError('Not authenticated', 401, 'UNAUTHORIZED'));
   }
-
-  const token = authHeader.split(' ')[1];
 
   try {
     const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
