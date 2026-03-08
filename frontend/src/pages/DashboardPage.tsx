@@ -8,7 +8,7 @@ import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
 import { Label } from '../components/ui/label';
 import { useThemeStore } from '../store/themeStore';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, X, Plus, LogOut } from 'lucide-react';
 
 interface PollResponse {
   id: string;
@@ -68,14 +68,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen flex flex-col p-4 sm:p-8">
+      <div className="w-full max-w-2xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">QuickPoll</h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{user?.email}</span>
+          <span className="hidden sm:block text-sm text-muted-foreground">{user?.email}</span>
             <Button variant="outline" onClick={() => logout()}>
-              Logout
+              <LogOut size={16} />
             </Button>
             <Button variant="outline" size="sm" onClick={toggle}>
               {isDark ? <Sun size={18} /> : <Moon size={18} />}
@@ -96,24 +96,25 @@ export default function DashboardPage() {
                 id="question"
                 value={question}
                 onChange={(e: { target: { value: SetStateAction<string>; }; }) => setQuestion(e.target.value)}
-                placeholder="What do you want to ask?"
+                placeholder="What should the humans decide today?"
               />
             </div>
             <div className="space-y-2">
               <Label>Options</Label>
               {options.map((option, index) => (
-                <div key={index} className="flex gap-2">
+                <div key={index} className="flex gap-2 items-center">
                   <Input
                     value={option}
-                    onChange={(e: { target: { value: string; }; }) => updateOption(index, e.target.value)}
+                    onChange={(e: { target: { value: string } }) => updateOption(index, e.target.value)}
                     placeholder={`Option ${index + 1}`}
                   />
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => removeOption(index)}
                     disabled={options.length <= 2}
                   >
-                    ✕
+                    <X size={16} />
                   </Button>
                 </div>
               ))}
@@ -124,7 +125,7 @@ export default function DashboardPage() {
               disabled={options.length >= 10}
               className="w-full"
             >
-              + Add Option
+              <Plus size={16} className="mr-2" /> Add Option
             </Button>
           </CardContent>
           <CardFooter>
