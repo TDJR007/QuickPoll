@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { router } from '../router.tsx';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -7,6 +8,16 @@ export const api = axios.create({
   },
   withCredentials: true,
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 429) {
+      router.navigate('/rate-limit');
+    }
+    return Promise.reject(error);
+  }
+);
 
 /*
     📌 import.meta.env is Vite's way of accessing env variables — different from Node's process.env.

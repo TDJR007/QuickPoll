@@ -4,10 +4,11 @@ import { Router } from 'express';
 import { createPollHandler, getPollHandler } from '../controllers/poll.controller';
 import { castVoteHandler, getPollResultsHandler } from '../controllers/vote.controller';
 import { authenticate } from '../middleware/auth.middleware';
+import { pollLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-router.post('/', authenticate, createPollHandler);
+router.post('/', authenticate, pollLimiter, createPollHandler);
 router.get('/:id', getPollHandler);
 router.post('/:id/vote', authenticate, castVoteHandler);
 router.get('/:id/results', getPollResultsHandler);

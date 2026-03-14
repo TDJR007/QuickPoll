@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes';
 import pollRoutes from './routes/poll.routes';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { globalLimiter, authLimiter, pollLimiter } from './middleware/rateLimiter';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
+app.use(globalLimiter);
 app.use(express.json());
 app.use(requestLogger);
 
@@ -25,7 +27,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/auth', authRoutes);
+app.use('/auth', authLimiter, authRoutes);
 app.use('/polls', pollRoutes);
 
 // Serve frontend static files
