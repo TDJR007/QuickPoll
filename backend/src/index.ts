@@ -13,6 +13,7 @@ import { logger } from './utils/logger';
 import redis from './utils/redis';
 
 const app = express();
+app.set('trust proxy', 1);
 
 const FRONTEND_DIST = path.resolve(__dirname, '../../frontend/dist');
 
@@ -74,5 +75,10 @@ export default app;
 
   📌 Middleware order matters in Express — requests flow top to bottom.
   By placing /health before globalLimiter, health check requests never touch the rate limiter or Redis.
-  Everything else still gets rate limited. Simple and surgical
+  Everything else still gets rate limited. Simple and surgical.
+
+  📌 trust proxy 1 tells Express to trust the first proxy in the chain and read the real client IP from X-Forwarded-For.
+  Without this, req.ip is the Render load balancer's IP for every single request — so all users share one rate limit bucket.
+  With it, each real user IP gets their own bucket. 
+  This is required on any app deployed behind a reverse proxy — Render, Heroku, nginx, all of them.
 */
