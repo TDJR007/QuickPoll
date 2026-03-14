@@ -22,13 +22,14 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
-app.use(globalLimiter);
-app.use(express.json());
-app.use(requestLogger);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.use(globalLimiter);
+app.use(express.json());
+app.use(requestLogger);
 
 app.use('/auth', authLimiter, authRoutes);
 app.use('/polls', pollRoutes);
@@ -67,9 +68,11 @@ export default app;
   Second, the SPA fallback app.get('*') catches any route that isn't an API route and serves index.html — this is what makes React Router work on page refresh in production,
   otherwise /poll/123 would 404 on the server.
   Third, we only do this in production — in dev, Vite serves the frontend on its own port with HMR. Note the fallback must come AFTER all API routes otherwise it'd swallow your API calls. 
-*/
 
-/*
   📌 This is the production-correct pattern — let Prisma manage the pool during normal operation, but listen for shutdown signals and disconnect cleanly before the process exits. 
   Render sends SIGTERM before killing your app, giving you a window to clean up.
+
+  📌 Middleware order matters in Express — requests flow top to bottom.
+  By placing /health before globalLimiter, health check requests never touch the rate limiter or Redis.
+  Everything else still gets rate limited. Simple and surgical
 */
