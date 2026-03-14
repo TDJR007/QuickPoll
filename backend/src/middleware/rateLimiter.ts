@@ -1,31 +1,9 @@
 // backend/src/middleware/rateLimiter.ts
 
 import { rateLimit } from 'express-rate-limit';
-import { RedisStore } from 'rate-limit-redis';
-import redis from '../utils/redis';
 import { env } from '../utils/env';
 
 const isProd = env.NODE_ENV === 'production';
-
-// shared Redis store factory
-const makeStore = (prefix: string) =>
-  new RedisStore({
-    prefix,
-    sendCommand: async (...args: string[]): Promise<any> =>
-      redis.call(...args as [string, ...string[]]),
-  });
-
-export const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: () => !isProd,
-  store: makeStore('rl:global:'),
-  message: {
-    error: 'Too many requests, please try again later.',
-  },
-});
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -33,7 +11,6 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => !isProd,
-  store: makeStore('rl:auth:'),
   message: {
     error: 'Too many auth attempts, please try again later.',
   },
@@ -45,9 +22,19 @@ export const pollLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => !isProd,
-  store: makeStore('rl:poll:'),
   message: {
     error: 'Too many polls created, please try again later.',
+  },
+});
+
+export const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => !isProd,
+  message: {
+    error: 'Too many requests, please try again later.',
   },
 });
 
