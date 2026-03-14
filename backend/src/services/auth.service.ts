@@ -2,7 +2,7 @@
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../../prisma/client';
+import { prisma } from '../utils/prisma';
 import { AppError } from '../utils/AppError';
 import { env } from '../utils/env';
 import { RegisterInput, LoginInput } from '../validators/auth.validator';

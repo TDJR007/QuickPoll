@@ -9,7 +9,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string(),
   REDIS_URL: z.string(),
   NODE_ENV: z.enum(['development', 'production']).default('development'),
-  FRONTEND_URL: z.string().url('Invalid frontend URL'),
+  FRONTEND_URL: z.url('Invalid frontend URL'),
 });
 
 const parsed = envSchema.safeParse(process.env);

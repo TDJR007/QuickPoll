@@ -1,6 +1,6 @@
 // backend/src/services/poll.services.ts
 
-import { prisma } from '../../prisma/client';
+import { prisma } from '../utils/prisma';
 import { AppError } from '../utils/AppError';
 import { CreatePollInput } from '../validators/poll.validator';
 

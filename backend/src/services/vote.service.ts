@@ -1,4 +1,4 @@
-import { prisma } from '../../prisma/client';
+import { prisma } from '../utils/prisma';
 import { AppError } from '../utils/AppError';
 import { CastVoteInput } from '../validators/vote.validator';
 import redis from '../utils/redis';

@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodError, z } from 'zod';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
-import { prisma } from '../../prisma/client';
+import { prisma } from '../utils/prisma';
 
 export const errorHandler = (
   err: unknown,
