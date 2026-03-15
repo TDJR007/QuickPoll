@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { api } from '../api/client';
@@ -26,6 +26,7 @@ const MINT_BG = 'oklch(0.76 0.15 162 / 15%)';
 
 export default function PollPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const [hasVoted, setHasVoted] = useState(false);
@@ -153,7 +154,9 @@ export default function PollPage() {
 
             {!user && (
               <p className="text-sm text-muted-foreground text-center pt-4">
-                <a href="/login" className="underline">Login</a> to vote.
+                <Link to="/login" state={{ from: location.pathname }} className="underline">
+                  Login
+                </Link>{' '}to vote.
               </p>
             )}
           </CardContent>

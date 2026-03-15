@@ -81,6 +81,18 @@ export const loginUser = async (input: LoginInput) => {
   };
 };
 
+export const getMe = async (userId: string) => {
+  // SQL: SELECT id, email, "createdAt" FROM "User" WHERE id = $1
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, createdAt: true },
+  });
+
+  if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+
+  return user;
+};
+
 /*
     📌 Best Practices: Three things here.
     First, select on the create call — we explicitly exclude password from what gets returned, never send hashed passwords to the client even accidentally.
