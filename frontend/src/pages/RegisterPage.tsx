@@ -7,11 +7,17 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
 import { Label } from '../components/ui/label';
+import { Check, X } from 'lucide-react';
 
 interface AuthResponse {
   user: { id: string; email: string; createdAt: string };
-  token: string;
 }
+
+const rules = [
+  { label: 'At least 8 characters', test: (p: string) => p.length >= 8 },
+  { label: 'One uppercase letter', test: (p: string) => /[A-Z]/.test(p) },
+  { label: 'One number', test: (p: string) => /[0-9]/.test(p) },
+];
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -19,6 +25,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState(false);
 
   const { mutate: register, isPending } = useMutation({
     mutationFn: async () => {
@@ -30,15 +37,27 @@ export default function RegisterPage() {
       navigate('/dashboard');
     },
     onError: (err: any) => {
-      setError(err.response?.data?.error ?? 'Something went wrong');
+      const fields = err.response?.data?.fields;
+      if (fields?.password) {
+        setError(fields.password[0]);
+      } else if (fields?.email) {
+        setError(fields.email[0]);
+      } else {
+        setError(err.response?.data?.error ?? 'Something went wrong');
+      }
     },
   });
 
+  const allValid = rules.every(r => r.test(password));
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create an account</CardTitle>
+          <p className="text-sm text-muted-foreground pt-1">
+            QuickPoll — Create polls, share them, and see live results.
+          </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {error && <p className="text-sm text-red-500">{error}</p>}
@@ -48,7 +67,7 @@ export default function RegisterPage() {
               id="email"
               type="email"
               value={email}
-              onChange={(e: { target: { value: SetStateAction<string>; }; }) => setEmail(e.target.value)}
+              onChange={(e: { target: { value: SetStateAction<string> } }) => setEmail(e.target.value)}
               placeholder="you@example.com"
             />
           </div>
@@ -58,9 +77,33 @@ export default function RegisterPage() {
               id="password"
               type="password"
               value={password}
-              onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPassword(e.target.value)}
+              onChange={(e: { target: { value: SetStateAction<string> } }) => {
+                setPassword(e.target.value);
+                setTouched(true);
+              }}
               placeholder="••••••••"
             />
+            {/* Password rules — only show after user starts typing */}
+            {touched && (
+              <ul className="space-y-1 pt-1">
+                {rules.map((rule) => {
+                  const passing = rule.test(password);
+                  return (
+                    <li
+                      key={rule.label}
+                      className="flex items-center gap-2 text-xs"
+                      style={{ color: passing ? 'oklch(0.76 0.15 162)' : 'var(--muted-foreground)' }}
+                    >
+                      {passing
+                        ? <Check size={12} />
+                        : <X size={12} />
+                      }
+                      {rule.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
@@ -68,7 +111,7 @@ export default function RegisterPage() {
             className="w-full"
             variant="mint"
             onClick={() => register()}
-            disabled={isPending}
+            disabled={isPending || !allValid || !email}
           >
             {isPending ? 'Creating account...' : 'Register'}
           </Button>
