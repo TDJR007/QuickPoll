@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '../api/client';
 import { useAuthStore } from '../store/authStore';
@@ -14,6 +14,8 @@ interface AuthResponse {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string })?.from ?? '/dashboard';
   const setAuth = useAuthStore((state) => state.setAuth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +28,7 @@ export default function LoginPage() {
     },
     onSuccess: (data) => {
       setAuth(data.user);
-      navigate('/dashboard');
+      navigate(from, { replace: true });
     },
     onError: (err: any) => {
       setError(err.response?.data?.error ?? 'Something went wrong');
@@ -88,4 +90,8 @@ export default function LoginPage() {
     It gives you mutate to trigger it, isPending to show loading state, onSuccess and onError callbacks. 
     useQuery is for fetching data. 
     That's the Tanstack boundary — mutations change things, queries fetch things.
+
+    📌 React hooks must always be called at the top level of the component,
+    before any logic or returns. Convention is: router hooks first (useNavigate, useLocation), then store hooks, then local state.
+    Keeps it readable and consistent.
 */

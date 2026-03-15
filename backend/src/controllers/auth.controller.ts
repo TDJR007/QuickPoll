@@ -45,6 +45,17 @@ export const logout = async (req: Request, res: Response) => {
   res.status(200).json({ message: 'Logged out' });
 };
 
+import { getMe } from '../services/auth.service';
+
+export const me = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await getMe(req.userId);
+    res.status(200).json({ user });
+  } catch (err) {
+    next(err);
+  }
+};
+
 /*
     📌 Controller is intentionally thin — no business logic, no DB calls, no error handling beyond next(err).
     The controller's only job is to take the request, hand it to the service, and send back the response.
