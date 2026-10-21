@@ -1,7 +1,7 @@
 import { prisma } from '../utils/prisma';
 import { AppError } from '../utils/AppError';
 import { CastVoteInput } from '../validators/vote.validator';
-import redis from '../utils/redis';
+import { cache } from '../utils/redis';
 
 const CACHE_TTL = 60 * 5; // 5 minutes
 
@@ -25,7 +25,7 @@ const cacheResults = async (pollId: string) => {
 
   if (!poll) return null;
 
-  await redis.set(getCacheKey(pollId), JSON.stringify(poll), 'EX', CACHE_TTL);
+  await cache.set(getCacheKey(pollId), JSON.stringify(poll), 'EX', CACHE_TTL);
   return poll;
 };
 
@@ -72,7 +72,7 @@ export const castVote = async (userId: string, pollId: string, input: CastVoteIn
   });
 
   // invalidate cache — next GET will recompute
-  await redis.del(getCacheKey(pollId));
+  await cache.del(getCacheKey(pollId));
 
   return vote;
 };
@@ -81,7 +81,7 @@ export const getPollResults = async (pollId: string) => {
   const cacheKey = getCacheKey(pollId);
 
   // check cache first
-  const cached = await redis.get(cacheKey);
+  const cached = await cache.get(cacheKey);
   if (cached) {
     return { ...JSON.parse(cached), fromCache: true };
   }
@@ -94,11 +94,12 @@ export const getPollResults = async (pollId: string) => {
 };
 
 /*
-    📌 Three things worth noting. 
+    📌 Three things worth noting.
     First, the upsert SQL comment — ON CONFLICT ("userId", "pollId") DO UPDATE is how Postgres handles "insert or update in one shot".
     This works because of the @@unique([userId, pollId]) constraint we put on the Vote model in the schema.
     The DB enforces uniqueness and the upsert exploits it elegantly.
     Second, fromCache flag on the response — this is just for our learning purposes so we can see in Postman whether Redis is actually being hit.
-    Third, we always delete the cache on vote and let the next read recompute it — this is the cache-aside pattern, 
+    Third, we always delete the cache on vote and let the next read recompute it — this is the cache-aside pattern,
     simpler and safer than trying to update the cache in place.
 */
+
