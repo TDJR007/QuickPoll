@@ -7,7 +7,7 @@ const envSchema = z.object({
   PORT: z.string().default('3000'),
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string(),
-  REDIS_URL: z.string(),
+  REDIS_URL: z.string().optional(),
   NODE_ENV: z.enum(['development', 'production']).default('development'),
   FRONTEND_URL: z.url('Invalid frontend URL'),
 });
