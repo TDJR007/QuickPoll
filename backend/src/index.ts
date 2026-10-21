@@ -1,3 +1,4 @@
+
 import express from 'express';
 import path from 'path';
 import { env } from './utils/env';
@@ -57,7 +58,9 @@ app.listen(env.PORT, () => {
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
   await prisma.$disconnect();
-  redis.disconnect();
+  if (redis) {
+    redis.disconnect();
+  }
   process.exit(0);
 });
 
@@ -65,12 +68,12 @@ export default app;
 
 /*
   📌 Three things here. First, path.resolve(__dirname, '../../frontend/dist') gives an absolute path
-  — Express static middleware uses this to jail file serving to that directory, so ../../ in a URL can't escape it. 
+  — Express static middleware uses this to jail file serving to that directory, so ../../ in a URL can't escape it.
   Second, the SPA fallback app.get('*') catches any route that isn't an API route and serves index.html — this is what makes React Router work on page refresh in production,
   otherwise /poll/123 would 404 on the server.
-  Third, we only do this in production — in dev, Vite serves the frontend on its own port with HMR. Note the fallback must come AFTER all API routes otherwise it'd swallow your API calls. 
+  Third, we only do this in production — in dev, Vite serves the frontend on its own port with HMR. Note the fallback must come AFTER all API routes otherwise it'd swallow your API calls.
 
-  📌 This is the production-correct pattern — let Prisma manage the pool during normal operation, but listen for shutdown signals and disconnect cleanly before the process exits. 
+  📌 This is the production-correct pattern — let Prisma manage the pool during normal operation, but listen for shutdown signals and disconnect cleanly before the process exits.
   Render sends SIGTERM before killing your app, giving you a window to clean up.
 
   📌 Middleware order matters in Express — requests flow top to bottom.
@@ -79,6 +82,6 @@ export default app;
 
   📌 trust proxy 1 tells Express to trust the first proxy in the chain and read the real client IP from X-Forwarded-For.
   Without this, req.ip is the Render load balancer's IP for every single request — so all users share one rate limit bucket.
-  With it, each real user IP gets their own bucket. 
+  With it, each real user IP gets their own bucket.
   This is required on any app deployed behind a reverse proxy — Render, Heroku, nginx, all of them.
 */
